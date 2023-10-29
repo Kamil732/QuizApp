@@ -1,0 +1,32 @@
+{% load pages %}
+
+<nav class="row">
+    {% if not request.path|last:1 %}
+        <span class="page-item mr-auto text-center">
+            <a class="page-link rounded" href="{{ request.path|last_number_less }}">
+                <i class="fas fa-angle-double-left"></i>
+                Previous
+            </a>
+        </span>
+    {% endif %}
+    <ul class="pagination justify-content-center col mx-auto">
+        {% for page_item in page_items|range_func %}
+            {% if profile %}
+                {% url 'users:profile' profile.slug forloop.counter as page_url %}
+            {% else %}
+                {% url 'quizes:quiz-sort' search_slug forloop.counter as page_url %}
+            {% endif %}
+            <li class="page-item {% if request.path == page_url %}active{% endif %}">
+                <a class="page-link" href="{{ page_url }}">{{ forloop.counter }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% if not request.path|last:page_items %}
+        <span class="page-item mr-auto text-center">
+            <a class="page-link rounded" href="{{ request.path|last_number_greater }}">
+                Next
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </span>
+    {% endif %}
+</nav>

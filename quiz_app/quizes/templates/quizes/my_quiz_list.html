@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}My Quizes List{% endblock %}
+
+{% load time %}
+
+{% block content %}
+
+{% include 'quizes/partials/_nav.html' %}
+<div class="card border-danger">
+    <div class="bg-danger text-white p-2">
+        <caption style="font-size: 24px;">Your quizes</caption>
+    </div>
+    <div class="card-body">
+        {% if quizes %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Quiz</th>
+                            <th scope="col">Questions</th>
+                            <th scope="col">Solves</th>
+                            <th scope="col">More options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-light">
+                        {% for quiz in quizes %}
+                            <tr class="text-break" id="quiz-{{ quiz.id }}">
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>
+                                    <img src="{{ quiz.image_url }}" class="mx-auto d-block border" width="300" height="198">
+                                </td>
+                                <td>
+                                    <a href="{% url 'quizes:quiz-summary' quiz.id %}" style="font-size: 18px; color: #2680bd;" class="quiz-title">{{ quiz.title }}</a>
+                                    <p class="text-muted">
+                                        <small>{{ quiz.pub_date|date:"Y-m-d" }}</small>
+                                        &bull;
+                                        <small>
+                                            <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}">{{ quiz.get_category }}</a>
+                                        </small>
+                                        &bull;
+                                        <small>
+                                            <a href="{% url 'users:profile' quiz.author.slug 1 %}">{{ user }}</a>
+                                        </small>
+                                    </p>
+                                    <small>{{ quiz.description}}</small>
+                                    <p style="font-size: 13px;" class="mt-3">
+                                        <b>
+                                            Section:
+                                            <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}" class="text-dark">{{ quiz.get_section }}</a>
+                                        </b>
+                                    </p>
+                                    {% if quiz.password %}
+                                        <b class="text-danger">This quiz is password protected</b>
+                                    {% endif %}
+                                    {% if quiz.is_published == 'False' %}
+                                        <div class="alert alert-warning text-center mt-5" role="alert">
+                                            This quiz is <b>private</b> and it's only available for persons who have link to it. <a href="{% url 'quizes:quiz-edit-privacy' quiz.id %}">Click here</a> to change that.
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">{{ quiz.questions.count }}</td>
+                                <td class="text-center">{{ quiz.solves }}</td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <a href="{% url 'quizes:quiz-detail' user.slug quiz.slug %}" target="_blank" role="button" class="btn btn-success btn-sm">
+                                            <i class="far fa-play-circle"></i>
+                                            Quiz page
+                                        </a>
+                                        <a href="{% url 'quizes:quiz-edit-settings' quiz.id %}" role="button" class="btn btn-primary btn-sm my-3">
+                                            <i class="far fa-edit"></i>
+                                            Edit quiz
+                                        </a>
+                                        <a href="{% url 'quizes:quiz-delete' quiz.id %}" role="button" class="btn btn-danger btn-sm my-2 delete-quiz" data-quiz-id="{{ quiz.id }}">
+                                            <i class="far fa-trash-alt"></i>
+                                            Delete quiz
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-primary" role="alert">
+                No quizes available
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+        $('.delete-quiz').each(function() {
+            const this_ = $(this)
+            this_.click(function(e) {
+                e.preventDefault()
+                $('#delete-container').remove()
+
+                $('body').css('overflow', 'hidden')
+                $('#container').append(`
+                    <div class="card shadow-lg" id="delete-container">
+                        <div class="card-body">
+                            <h3>Are you sure you want to delete this quiz?</h3>
+                            <button class="btn btn-success px-5" id="yes">Yes</button>
+                            <button class="btn btn-danger px-5" id="no">No</button>
+                        </div>
+                    </div>
+                `)
+
+                $('#no').click(function() {
+                    $('#delete-container').fadeOut(500)
+                    $('body').css('overflow', 'auto')
+                })
+                $('#yes').click(function() {
+                    $.ajax({
+                        method: 'GET',
+                        url: this_.attr('href'),
+                        success: function(data) {
+                            $('#delete-container').fadeOut(400)
+                            $('#quiz-' + this_.attr('data-quiz-id')).fadeOut(900)
+                            $('body').css('overflow', 'auto')
+                        }
+                    }) 
+                })
+            })
+        })
+    })
+</script>
+
+{% endblock %}

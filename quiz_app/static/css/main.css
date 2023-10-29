@@ -1,0 +1,65 @@
+.success {
+    background-color: #8dee9a;
+}
+.info {
+    background-color: #e5f589;
+}
+.error {
+    color: white;
+    background-color: #dd6060;
+}
+.title {
+    background-color: transparent;
+    color: black;
+    transition: color 0.5s ease;
+}
+.title:hover {
+    text-decoration: none;
+    color: orange;
+}
+.btn-answer {
+    background-color: #fff;
+}
+.btn-answer:hover {
+    background-color: #eee;
+}
+.btn-answer .active {
+    color: white;
+    cursor: default;
+}
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+}
+.like-btn {
+    cursor: pointer; 
+}
+.like-btn:hover {
+    background-color: #e0e0e0;
+}
+
+@keyframes delete-quiz-animation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+#delete-container {
+    text-align: center;
+    position: fixed;
+    width: auto;
+    height: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -56vh);
+    animation-fill-mode: both;
+    animation-name: delete-quiz-animation;
+    animation-duration: 0.8s;
+}

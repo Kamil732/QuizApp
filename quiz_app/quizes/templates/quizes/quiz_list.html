@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Quizes list{% endblock %}
+
+{% load get_text %}
+{% load time %}
+{% load pages %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-8">
+        <div class="card float-left mb-4 bg-light w-100">
+            <div class="card-header bg-white text-center shadow-sm" style="border-top: 4px solid lightgreen">
+                <span class="h3">The Newest Quizes</span>
+            </div>
+            <div class="card-body mx-1">
+                {% if quizes %}
+                    {% for quiz in quizes %}
+                        <article class="bg-white row p-0 m-4 position-relative noselect shadow">
+                            <a href="{% url 'quizes:quiz-detail' quiz.author.slug quiz.slug %}"><img src="{{ quiz.image_url }}" class="float-left" width="300" height="198"></a>
+                            <section class="col">
+                                <header>
+                                    <div>
+                                        <span>
+                                            Section:
+                                            <a href="{% url 'quizes:quiz-sort' quiz.section 1 %}" style="color: limegreen;">{{ quiz.get_section }}</a>
+                                        </span>
+                                        <br>
+                                        <span>
+                                            Category:
+                                            <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}" style="color: limegreen;">{{ quiz.get_category }}</a>
+                                        </span>
+                                    </div>
+                                    <div class="my-4">
+                                        <h2 style="font-size: 24px;"><a href="{% url 'quizes:quiz-detail' quiz.author.slug quiz.slug %}" class="title">{{ quiz.title|get:90 }}</a></h2>
+                                    </div>
+                                    <div class="description">
+                                        <span>{{ quiz.description|get:65 }}</span>
+                                    </div>
+                                    <div class="text-muted" style="font-size: 14px;">
+                                        <span>author <b><a href="{% url 'users:profile' quiz.author.slug 1 %}" class="text-muted">{{ quiz.author }}</a></b></span>
+                                        &bull;
+                                        <span>Added {% get_time_difference quiz.pub_date %}</span>
+                                        &bull;
+                                        <span>{{ quiz.solves }} solve{{ quiz.solves|pluralize }}</span>
+                                    </div>
+                                </header>
+                            </section>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <p class="h4 text-center">No quizes available</p>
+                {% endif %}
+            </div>
+            {% if page_items > 1 %}
+                <div class="card-footer p-auto">
+                    {% if quiz_sort_url %}
+                        {% include 'partials/_page-navigation.html' %}
+                    {% else %}
+                        {% url 'quizes:quiz-list' as quiz_list %}
+                        
+                        <nav class="row">
+                            {% if not request.path|last:1 and not request.path == quiz_list %}
+                                <span class="page-item mr-auto text-center">
+                                    <a class="page-link rounded" href="{{ request.path|last_number_less }}">
+                                        <i class="fas fa-angle-double-left"></i>
+                                        Previous
+                                    </a>
+                                </span>
+                            {% endif %}
+                            <ul class="pagination justify-content-center col mx-auto">
+                                {% for page_item in page_items|range_func %}
+                                    {% url 'quizes:page' forloop.counter as page_url %}
+                                    <li class="page-item {% if request.path == page_url or request.path == quiz_list and forloop.counter == 1 %}active{% endif %}">
+                                        <a class="page-link" href="{{ page_url }}">{{ forloop.counter }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if not request.path|last:page_items %}
+                                <span class="page-item mr-auto text-center">
+                                    <a class="page-link rounded" href="{% if request.path == quiz_list %}{% url 'quizes:page' 2 %}{% else %}{{ request.path|last_number_greater }}{% endif %}">
+                                        Next
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </span>
+                            {% endif %}
+                        </nav>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-sm-3">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white" style="border-top: 4px solid orange">
+                <h3 class="text-center">Search for quiz</h3>
+            </div>
+            <div class="card-body bg-light">
+                <form method="post" action="{% url 'quizes:search-quiz' %}"> {% csrf_token %}
+                    <div class="input-group justify-content-center">
+                        <input type="text" name="search-quiz" id="search-quiz" class="form-control" placeholder="Search quiz...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% include 'partials/_main_ads.html' %}
+    </div>
+</div>
+
+{% endblock %}

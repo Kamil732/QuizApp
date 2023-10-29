@@ -1,0 +1,29 @@
+{% url 'quizes:quiz-summary' quiz.id as quiz_summary %}
+{% url 'quizes:quiz-edit-settings' quiz.id as quiz_edit_settings %}
+{% url 'quizes:quiz-edit-privacy' quiz.id as quiz_edit_privacy %}
+{% url 'quizes:quiz-add-question' quiz.id as quiz_add_question %}
+{% url 'quizes:quiz-show-opinions' quiz.id as quiz_show_opinions %}
+{% url 'quizes:quiz-show-questions' quiz.id as quiz_show_questions %}
+
+<nav class="h-100 mr-3 bg-white float-left shadow-sm" style="width: 14%;">
+    <div class="nav flex-column nav-pills" aria-orientation="vertical">
+        <a class="nav-link text-center bg-success text-white rounded-0 shadow-sm" href="{% url 'quizes:my-quiz-list' %}">
+            <i class="fas fa-home"></i>
+            My quiz list
+        </a>
+        <div class="dropdown text-center rounded-0 bg-light show">
+            <a href="#" class="nav-link rounded-0 dropdown-toggle" data-toggle="dropdown" role="button">
+                <i class="fas fa-thumbtack"></i>
+                Quiz
+            </a>
+            <div class="dropdown-menu show">
+                <a class="dropdown-item {% if request.path == quiz_summary %}active{% endif %}" href="{{ quiz_summary }}"><i class="fas fa-asterisk"></i> Summary</a>
+                <a class="dropdown-item {% if request.path == quiz_edit_settings %}active{% endif %}" href="{{ quiz_edit_settings }}"><i class="fas fa-wrench"></i> Settings</a>
+                <a class="dropdown-item {% if request.path == quiz_edit_privacy %}active{% endif %}" href="{{ quiz_edit_privacy }}"><i class="fas fa-key"></i> Privacy</a>
+                <a class="dropdown-item {% if request.path == quiz_show_questions %}active{% endif %}" href="{{ quiz_show_questions }}"><i class="fas fa-search"></i> Show questions</a>
+                <a class="dropdown-item {% if request.path == quiz_add_question %}active{% endif %}" href="{{ quiz_add_question }}"><i class="fas fa-plus-circle"></i> Add question</a>
+                <a class="dropdown-item {% if request.path == quiz_show_opinions %}active{% endif %}" href="{{ quiz_show_opinions }}"><i class="fas fa-search"></i> Show opinions</a>
+            </div>
+        </div>
+    </div>
+</nav>

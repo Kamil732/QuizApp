@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Quiz's summary: {{ quiz }} | user's {{ user }}{% endblock %}
+
+{% load fullurl %}
+
+{% block content %}
+
+{% include 'quizes/partials/_nav_detail_quiz.html' %}
+<div class="bg-light p-3 shadow">
+    {% include 'quizes/partials/_quiz_name.html' %}
+
+    <div class="card border-info">
+        <div class="bg-info text-white p-2">
+            <caption style="font-size: 24px;">
+                <i class="fas fa-globe-americas"></i>
+                Quiz's summary
+            </caption>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Quiz</th>
+                            <th scope="col">Questions</th>
+                            <th scope="col">Solves</th>
+                            <th scope="col">More options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-light">
+                        <tr class="text-break">
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <img src="{{ quiz.image_url }}" class="mx-auto d-block border" width="300" height="198">
+                            </td>
+                            <td>
+                                <a href="{% url 'quizes:quiz-detail' user.slug quiz.slug %}" style="font-size: 18px; color: #2680bd;">{{ quiz.title }}</a>
+                                <p class="text-muted">
+                                    <small>{{ quiz.pub_date|date:"Y-m-d" }}</small>
+                                    &bull;
+                                    <small>
+                                        <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}">{{ quiz.get_category }}</a>
+                                    </small>
+                                    &bull;
+                                    <small>
+                                        <a href="{% url 'users:profile' quiz.author.slug 1 %}">{{ user }}</a>
+                                    </small>
+                                </p>
+                                <small>{{ quiz.description}}</small>
+                                <p style="font-size: 13px;" class="mt-3">
+                                    <b>
+                                        Section:
+                                        <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}" class="text-dark">{{ quiz.get_section }}</a>
+                                    </b>
+                                </a>
+                                {% if quiz.is_published == 'False' %}
+                                    <div class="alert alert-warning text-center mt-5" role="alert">
+                                        This quiz is <b>private</b> and it's only available for persons who have link to it. <a href="{% url 'quizes:quiz-edit-privacy' quiz.id %}">Click here</a> to change that.
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ quiz.questions.count }}</td>
+                            <td class="text-center">{{ quiz.solves }}</td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <a href="{% url 'quizes:quiz-detail' user.slug quiz.slug %}" target="_blank" role="button" class="btn btn-success btn-sm">
+                                        <i class="far fa-play-circle"></i>
+                                        Quiz page
+                                    </a>
+                                    <a href="{% url 'quizes:quiz-add-question' quiz.id %}" role="button" class="btn btn-warning btn-sm my-3">
+                                        <i class="fas fa-plus-circle"></i>
+                                        Add question
+                                    </a>
+                                    <a href="{% url 'quizes:quiz-show-questions' quiz.id %}" role="button" class="btn btn-warning btn-sm my-3">
+                                        <i class="fas fa-search"></i>
+                                        Show questions
+                                    </a>
+                                    <a href="{% url 'quizes:quiz-edit-settings' quiz.id %}" role="button" class="btn btn-primary btn-sm my-3">
+                                        <i class="far fa-edit"></i>
+                                        Edit quiz
+                                    </a>
+                                    <a href="{% url 'quizes:quiz-show-opinions' quiz.id %}" role="button" class="btn btn-warning btn-sm my-3">
+                                        <i class="fas fa-search"></i>
+                                        Show opinions
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="card-footer text-center">
+                    <h5>Your quiz is available at this link</h5>
+                    <a class="font-weight-bold text-info" href="{% url 'quizes:quiz-detail' user.slug quiz.slug %}">{% fullurl 'quizes:quiz-detail' user.slug quiz.slug %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

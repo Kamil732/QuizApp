@@ -1,0 +1,37 @@
+
+<nav class="card shadow-sm my-4 text-center" style="border-top: 4px solid #d2e42f">
+    <div class="card-header">
+        <h4 class="text-center">Create your own quiz!</h4>
+    </div>
+    <div class="card-body">
+        <img src="https://f5m7t5k6.stackpathcdn.com/app/webroot/img/avatar/1464152647e3debc8f00a6dbbd.png" class="img-fluid" alt="">
+        <p>Do you have any idea, and want to check someone knowledge? Create your own quiz and join to our community!</p>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'quizes:create-quiz' %}" role="button" class="btn btn-success w-100">Create Quiz</a>
+    </div>
+</nav>
+<nav class="card shadow-sm my-4" style="border-top: 4px solid #ff5cae">
+    <div class="card-header">
+        <h4 class="text-center">Search by section</h4>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            {% for key, section in quiz_sections %}
+                <a href="{% url 'quizes:quiz-sort' key 1 %}" class="list-group-item list-group-item-action list-group-item-light my-1 rounded border-top {% if search_slug == key %}active{% endif %}">{{ section }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</nav>
+<nav class="card shadow-sm my-4" style="border-top: 4px solid #70b5ee">
+    <div class="card-header">
+        <h4 class="text-center">Search by category</h4>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            {% for key, category in quiz_categories %}
+                <a href="{% url 'quizes:quiz-sort' key 1 %}" class="list-group-item list-group-item-action list-group-item-light my-1 rounded border-top {% if search_slug == key %}active{% endif %}">{{ category }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</nav>

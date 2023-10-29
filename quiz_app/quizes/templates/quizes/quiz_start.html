@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}During Solving a Quiz{% endblock %}
+
+{% load static %}
+{% load pages %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card py-2 text-center bg-white shadow mb-5 px-3 noselect" style="border-top: 4px solid orange;">
+        <h2 class="font-weight-normal">{{ quiz }}</h2>
+    </div>
+    
+    <form role="form" method="post" action="{% url 'quizes:quiz-end' quiz.author.slug quiz.slug %}"> {% csrf_token %}
+        {% if quiz.show_time == 'True' %}
+            <input type="hidden" name="timer" id="timer" value="0">
+        {% endif %}
+        {% for question in quiz.questions.all %}
+            <div class="card shadow-sm mb-5 noselect" style="border-top: 4px solid #6765f5;">
+                <div class="card-header">
+                    <div class="row mx-3">
+                        {% if question.image_url %}<img src="{{ question.image_url }}" class="img-fluid mr-3 float-left" width="375" height="250">{% endif %}
+                        <div class="col">
+                            <p style="font-size: 20px;">{{ question }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="background-color: #fff9f9;">
+                    <div class="list-group btn-group-toggle" data-toggle="buttons">
+                        {% for answer in question.answers.all %}
+                            <div class="btn list-group-item-action my-1 rounded-0 shadow-sm btn-outline-secondary btn-answer" style="border-color: transparent; border-left: 3px solid #706f6f;">
+                                <input type="radio" value="{{ answer }}" name="answer{{ question.id }}"> {{ answer }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    
+        <div class="card p-2 shadow-sm">
+            <button class="btn btn-info btn-lg px-3">End the quiz</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+{% if quiz.show_time == 'True' %}
+    <script src="{% static 'js/quiz_start.js' %}"></script>
+{% endif %}
+
+{% endblock %}

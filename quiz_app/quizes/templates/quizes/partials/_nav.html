@@ -1,0 +1,14 @@
+{% url 'quizes:create-quiz' as create_quiz %}
+
+<nav class="h-100 mr-3 bg-white float-left shadow-sm" style="width: 14%;">
+    <div class="nav flex-column nav-pills" aria-orientation="vertical">
+        <a class="nav-link text-center bg-success text-white rounded-0 shadow-sm" href="{% url 'quizes:my-quiz-list' %}">
+            <i class="fas fa-home"></i>
+            My quiz list
+        </a>
+        <a class="nav-link text-center rounded-0 {% if request.path == create_quiz %}active{% else %}bg-light{% endif %}" href="{{ create_quiz }}">
+            <i class="fas fa-plus-circle"></i>
+            Create quiz
+        </a>
+    </div>
+</nav>

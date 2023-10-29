@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Create Quiz{% endblock %}
+
+{% block content %}
+
+{% include 'quizes/partials/_nav.html' %}
+<div class="card shadow-sm border-info">
+    <div class="bg-info text-white p-2">
+        <caption style="font-size: 24px;">
+            <i class="fas fa-globe-americas"></i>
+            Create quiz
+        </caption>
+    </div>
+    <form method="post"> {% csrf_token %}
+        <div class="card-body p-4">
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}:</label>
+                {% if form.title.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.title.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {{ form.title }}
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="{{ form.section.id_for_label }}">{{ form.section.label }}:</label>
+                        {% if form.section.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.section.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {{ form.section }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}">{{ form.category.label }}:</label>
+                        {% if form.category.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.category.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {{ form.category }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.image_url.id_for_label }}">{{ form.image_url.label }}:</label>
+                        {% if form.image_url.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.image_url.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Not required</small>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">http://</span>
+                            </div>
+                            {{ form.image_url }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {% if form.is_published.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.is_published.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="btn-group btn-group-toggle form-group" data-toggle="buttons">
+                            {% for radio in form.is_published %}
+                                <label class="btn btn-outline-danger">
+                                    {{ radio.tag }} {{ radio.choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}:</label>
+                        {{ form.description }}
+                        <small class="form-text text-muted">Not required</small>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="summary_text">
+                <button class="btn btn-link p-0" id="add_summary_text">Add summary text</button>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-danger w-100">Next</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+        const $add_summary_text_btn = $('#add_summary_text')
+        $add_summary_text_btn.on('click', function(e) {
+            e.preventDefault()
+            $add_summary_text_btn.remove()
+
+            const $summary_text_div = $('#summary_text')
+            $summary_text_div.html(`
+                <label for="{{ form.summary_text.id_for_label }}">{{ form.summary_text.label }}:</label>
+                {{ form.summary_text }}
+            `)
+        })
+    })
+</script>
+
+{% endblock %}

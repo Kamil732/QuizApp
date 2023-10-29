@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Edit settings{% endblock %}
+
+{% block content %}
+
+
+{% include 'quizes/partials/_nav_detail_quiz.html' %}
+
+<div class="bg-light p-3 shadow">
+    {% include 'quizes/partials/_quiz_name.html' %}
+
+    <div class="card border-info">
+        <div class="bg-info text-white p-2">
+            <caption style="font-size: 24px;">
+                <i class="fas fa-globe-americas"></i>
+                Edit your quiz settings
+            </caption>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+                {% for key, errors in form.errors.items %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post"> {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}">{{ form.title.label }}:</label>
+                            {{ form.title }}
+                            <small class="form-text text-muted">{{ form.title.help_text }}</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.section.id_for_label }}">{{ form.section.label }}:</label>
+                            {{ form.section }}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.category.id_for_label }}">{{ form.category.label }}:</label>
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="{{ form.image_url.id_for_label }}">{{ form.image_url.label }}:</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">http://</span>
+                                </div>
+                                {{ form.image_url }}
+                            </div>
+                            <img src="{{ quiz.image_url }}" class="mt-2 d-block mx-auto border p-1" width="300" height="192" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">{{ form.description.label }}:</label>
+                    {{ form.description }}
+                </div>
+                <button class="btn btn-success px-3">Save changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

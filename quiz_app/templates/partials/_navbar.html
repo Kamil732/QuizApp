@@ -1,0 +1,59 @@
+{% url 'users:login' as login %}
+{% url 'users:register' as register %}
+{% url 'users:profile-settings' as profile_settings %}
+{% url 'quizes:quiz-detail' quiz.author quiz.title_url as quiz_detail %}
+{% url 'quizes:quiz-start' quiz.author quiz.title_url as quiz_start %}
+{% url 'quizes:create-quiz' as create_quiz %}
+{% url 'quizes:my-quiz-list' as my_quize_list %}
+{% url 'quizes:quiz-summary' quiz.id as quiz_summary %}
+{% url 'quizes:quiz-edit-settings' quiz.id as quiz_edit_settings %}
+{% url 'quizes:quiz-edit-privacy' quiz.id as quiz_edit_privacy %}
+{% url 'quizes:quiz-add-question' quiz.id as quiz_add_question %}
+{% url 'users:profile' user.slug 1 as my_profile %}
+
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="background-color: #e3f2fd;">
+    <a class="navbar-brand" href="{% url 'quizes:quiz-list' %}">
+        <img src="{% static 'images/logo.jpg' %}" width="70" height="40" class="d-inline-block align-top" alt="">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-3">
+            {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.path == profile_settings or request.path == my_profile or request.path == quiz_edit_settings or request.path == my_quize_list or request.path == quiz_edit_privacy or request.path == quiz_add_question or request.path == quiz_summary %}active{% endif %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ user }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item {% if request.path == my_quize_list or request.path == quiz_edit_settings or request.path == quiz_edit_privacy or request.path == quiz_add_question or request.path == quiz_summary %}active{% endif %}" href="{{ my_quize_list }}">My quizes</a>
+                        <a class="dropdown-item {% if request.path == my_profile %}active{% endif %}" href="{{ my_profile }}">My profile</a>
+                        <a class="dropdown-item {% if request.path == profile_settings %}active{% endif %}" href="{{ profile_settings }}">Profile settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'users:logout' %}">Logout</a>
+                    </div>
+                </li>
+            {% else %}
+                <li class="nav-item {% if request.path == register %}active disabled{% endif %}">
+                    <a class="nav-link" href="{{ register }}">Register</a>
+                </li>
+                <li class="nav-item {% if request.path == login %}active disabled{% endif %}">
+                    <a class="nav-link" href="{{ login }}">Login</a>
+                </li>
+            {% endif %}
+            <li class="nav-item {% if request.path == create_quiz %}active disabled{% endif %}">
+                <a class="nav-link" href="{{ create_quiz }}">Create Quiz</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- 
+    <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+-->

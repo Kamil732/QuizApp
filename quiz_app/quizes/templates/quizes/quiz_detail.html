@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+{% block title %}Quiz {{ quiz|capfirst }}{% endblock %}
+
+{% load static %}
+{% load time %}
+{% load get_text %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-sm-7 mb-3">
+        <div class="card shadow-sm bg-light noselect mb-5" style="border-top: 4px solid orange;">
+            <div class="card-header text-center">
+                <h2 class="font-weight-normal">{{ quiz }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mx-2">
+                    <div class="bg-white p-0 text-break w-100 shadow-sm">
+                        <img src="{{ quiz.image_url }}" class="mr-3 float-left" width="300" height="198">
+                        {% if quiz.description %}
+                            <p class="mr-3 mb-3" style="font-size: 18px;">{{ quiz.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="post" action="{% url 'quizes:quiz-start' quiz.author.slug quiz.slug %}"> {% csrf_token %}
+                    {% if quiz.password %}
+                        <div class="form-group my-4">
+                            <label for="password" class="h5">This quiz is password protected</label>
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Enter password..." required>
+                        </div>
+                    {% endif %}
+                    <button class="btn btn-success mt-3 w-100">Start</button>
+                </form>
+            </div>
+        </div>
+        
+        {% if quiz.is_opinions == 'True' %}
+            <div class="card shadow-sm bg-light mb-3">
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'quizes:opinion-add' quiz.id %}" method="post" id="add-opinion-form"> {% csrf_token %}
+                            <div class="form-group">
+                                <label for="opinion-content">Opinion:</label>
+                                <p class="float-right" id="char-left">0/10000</p>
+                                <textarea name="opinion-content" class="form-control" id="opinion-content" rows="4" maxlength="10000" required></textarea>
+                                <button class="btn btn-outline-success mt-2" id="add-opinion-btn" disabled>Add opinion</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <h3 class="text-center">To add an opinion, first you have to register or login</h3>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card shadow-sm bg-white">
+                <div class="card-header">
+                    <h3 class="font-weight-normal">Opinions</h3>
+                    <p id="opinion_count">{{ quiz.opinions.count }} opinion{{ quiz.opinions.count|pluralize }}</p>
+                </div>
+                <div class="card-body" id="opinions">
+                    {% if opinions %}
+                        {% for opinion in opinions %}
+                            <article class="bg-light m-4 position-relative shadow-sm p-3">
+                                <header class="text-muted" style="font-size: 14px;">
+                                    <a href="{% url 'users:profile' opinion.author.slug 1 %}" class="text-muted">
+                                        <span>
+                                            <img src="{{ opinion.author.image_url }}" width="35" height="35" class="rounded-circle mr-2" alt="">
+                                        </span>
+                                        <span class="font-weight-bold">{{ opinion.author }}</span>
+                                    </a>
+                                    &bull;
+                                    <span>Added {% get_time_difference opinion.pub_date %}</span>
+                                </header>
+                                <section class="mt-2">
+                                    <p>{{ opinion }}</p>
+                                </section>
+                                <footer>
+                                    <div class="main">
+                                        <img src="{% if user in opinion.likes.all %}{% static 'images/likes/liked.png' %}{% else %}{% static 'images/likes/like.png' %}{% endif %}" width="18" class="like-btn" alt="" data-url="{% url 'quizes:opinion-like' quiz.id opinion.id %}">
+                                        <span id="likes-{{ opinion.id }}">
+                                            {{ opinion.likes.count }}
+                                        </span>
+                                        <button class="btn btn-link ml-4 text-muted reply-btn" data-reply-url="{% url 'quizes:opinion-add-reply' quiz.id opinion.id %}">Reply</button>
+                                    </div>
+                                    <div class="row replies">
+                                        {% if opinion.replies.all %}
+                                            <button class="btn btn-link read-replies" data-url="{% url 'quizes:opinion-get-replies' quiz.id opinion.id %}">Read {{ opinion.replies.count }} repl{% if opinion.replies.count|pluralize %}ies{% else %}y{% endif %}</button>
+                                        {% endif %}
+                                    </div>
+                                </footer>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <h2 class="text-center" id="no-opinions-text">There's no opinion yet</h2>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2>This quiz has turn off opinions</h2>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-sm-3">
+        <nav class="card text-center" style="border-top: 4px solid #61f0b9">
+            <div class="card-header">
+                <h2>About author</h2>
+            </div>
+            <div class="card-body">
+                <img src="{{ quiz.author.image_url }}" width="100" height="100" class="rounded-circle border" alt="">
+                <p style="font-size: 22px;" class="mt-2">{{ quiz.author }}</p>
+                {% if quiz.author.description %}
+                    <p>{{ quiz.author.description|get:100 }}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer py-3">
+                <a href="{% url 'users:profile' quiz.author.slug 1 %}" role="button" class="btn btn-secondary px-4">Show profile</a>
+            </div>
+        </nav>
+        {% if similar_quizes %}
+            <nav class="card mt-5" style="border-top: 4px solid #70b5ee">
+                <div class="card-header text-center">
+                    <h3>Similar quizes</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for quiz in similar_quizes %}
+                            <li class="list-group-item p-0 bg-white noselect shadow-sm mb-3 border">
+                                <a href="{% url 'quizes:quiz-detail' quiz.author.slug quiz.slug %}"><img src="{{ quiz.image_url }}" class="float-left mr-2" width="145" height="100"></a>
+                                <section>
+                                    <a href="{% url 'quizes:quiz-sort' quiz.category 1 %}">{{ quiz.get_category }}</a>
+                                    <p class="mt-2">
+                                        <a href="{% url 'quizes:quiz-detail' quiz.author.slug quiz.slug %}" class="title">{{ quiz.title|get:27 }}</a>
+                                    </p>
+                                </section>
+                                <footer class="text-muted">
+                                    <span>{{ quiz.solves }} solve{{ quiz.solves|pluralize }}</span>
+                                </footer>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </nav>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    $(document).ready(function() {
+        function like_func() {
+            $('.like-btn').each(function() {
+                const $like_btn = $(this)
+                $like_btn.on('click', function(e) {
+                    e.preventDefault()
+
+                    const $like_btn_url = $like_btn.attr('data-url')
+                    $.ajax({
+                        method: 'GET',
+                        url: $like_btn_url,
+                        success: function(data) {
+                            const $likes = $('#likes-' + data['opinion_id'])
+                            if(data['image'] == 'like') {
+                                $like_btn.attr('src', "{% static 'images/likes/like.png' %}")
+                                $likes.html(parseInt($likes.text()) - 1)
+                            } else {
+                                $like_btn.attr('src', "{% static 'images/likes/liked.png' %}")
+                                $likes.html(parseInt($likes.text()) + 1)
+                            }
+                        }
+                    })
+                })
+            })
+        }
+        like_func()
+
+
+        // reply btns
+        function reply_opinion_func() {
+            $('.reply-btn').each(function() {
+                const this_ = $(this)
+
+                this_.click(function(e) {
+                    e.preventDefault()
+                    const $reply_url = this_.attr('data-reply-url')
+
+                    function add_reply_btn(element) {
+                        element.closest('div[class*="main"]').append(`
+                            <button class="btn btn-link ml-4 text-muted reply-btn" data-reply-url="${$reply_url}">Reply</button>
+                        `)
+                        element.closest('form').remove()
+                        reply_opinion_func()
+                    }
+
+                    // append reply form
+                    this_.parent().append(`
+                        <form method="POST" class="mt-3 reply-opinion-form"> {% csrf_token %}
+                            <div class="row">
+                                <div class="col">
+                                    <textarea name="reply-content" id="reply-content" cols="100" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <button class="btn btn-danger cancel-reply-btn px-3 btn-sm">Cancel</button>
+                                    <button class="btn btn-outline-success px-3 btn-sm">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    `)
+                    this_.remove()
+
+                    // reply ajax function
+                    $('.reply-opinion-form').each(function() {
+                        const this_ = $(this)
+                        this_.submit(function(e) {
+                            e.preventDefault()
+
+                            const $form_data = this_.serialize()
+                            $.ajax({
+                                method: 'POST',
+                                url: $reply_url,
+                                dataType: 'json',
+                                data: $form_data,
+                                success: function(data) {
+                                    this_.parent().parent().children().closest('.replies').prepend(`
+                                        <article class="bg-light m-4 position-relative shadow p-3 w-100 reply">
+                                            <header class="text-muted" style="font-size: 14px;">
+                                                <a href="#" class="text-muted">
+                                                    <span>
+                                                        <img src="{{ user.image_url }}" width="35" height="35" class="rounded-circle mr-2" alt="">
+                                                    </span>
+                                                    <span class="font-weight-bold">{{ user }}</span>
+                                                </a>
+                                                &bull;
+                                                <span>Added just at the moment</span>
+                                            </header>
+                                            <section class="mt-2">
+                                                <p>${data['content']}</p>
+                                            </section>
+                                        </article>
+                                    `)
+                                    add_reply_btn(this_)
+                                }
+                            })
+                        })
+                    })
+
+                    $('.cancel-reply-btn').each(function() {
+                        const this_ = $(this)
+                        this_.click(function(e) {
+                            e.preventDefault()
+                            add_reply_btn(this_)
+                        })
+                    })
+                })
+
+                function read_replies() {
+                    $('.read-replies').each(function() {
+                        const this_ = $(this)
+                        this_.click(function(e) {
+                            e.preventDefault()
+
+                            $.ajax({
+                                method: 'GET',
+                                url: this_.attr('data-url'),
+                                dataType: 'json',
+                                success: function(data) {
+                                    replies = data['replies']
+
+                                    // Show replies
+                                    for(let i=0; i<replies.length; i++) {
+                                        this_.parent().append(`
+                                            <article class="bg-light m-4 position-relative shadow p-3 w-100 reply">
+                                                <header class="text-muted" style="font-size: 14px;">
+                                                    <a href="#" class="text-muted">
+                                                        <span>
+                                                            <img src="${replies[i][3]}" width="35" height="35" class="rounded-circle mr-2" alt="">
+                                                        </span>
+                                                        <span class="font-weight-bold">${replies[i][2]}</span>
+                                                    </a>
+                                                    &bull;
+                                                    <span>Added ${data['get_time_difference_' + replies[i][0]]}</span>
+                                                </header>
+                                                <section class="mt-2">
+                                                    <p>${replies[i][1]}</p>
+                                                </section>
+                                            </article>
+                                        `)
+                                    }
+
+                                    // btn - hide replies - and it's fucntions
+                                    this_.parent().append(`
+                                        <button class="btn btn-link hide-replies">Show less</button>
+                                    `)
+
+                                    $('.hide-replies').each(function() {
+                                        const btn_parent = $(this).parent()
+                                        $(this).click(function(e) {
+                                            e.preventDefault()
+
+                                            btn_parent.empty()
+                                            btn_parent.append(`
+                                                <button class="btn btn-link read-replies" data-url="${data['get_replies_url']}">Read ${data['replies_count']} replies</button>
+                                            `)
+                                            read_replies()
+                                        }) 
+                                    })
+
+                                    this_.remove()
+                                }
+                            })
+                        })
+                    })
+                }
+                read_replies()
+            })
+        }
+        reply_opinion_func()
+
+
+        // opinion form button - disbled funcion
+        const $opinion_content = $('#opinion-content')
+        $opinion_content.on('keyup', function() {
+            $('#char-left').html(`${$opinion_content.val().length}/10000`)
+            const $add_opinion_btn = $('#add-opinion-btn')
+            if($.trim($opinion_content.val())) {
+                $add_opinion_btn.removeAttr('disabled')
+            } else {
+                $add_opinion_btn.prop('disabled', true)
+            }
+        })
+
+        // Add opinion function
+        const $myForm = $('#add-opinion-form')
+        $myForm.submit(function(e) {
+            e.preventDefault()
+            const $form_data = $(this).serialize()
+            $.ajax({
+                method: "POST",
+                url: "{% url 'quizes:opinion-add' quiz.id %}",
+                dataType: "json",
+                data: $form_data,
+                success: function(data) {
+                    $myForm[0].reset()
+                    $('#no-opinions-text').remove()
+
+                    $('#opinions').prepend(`
+                        <article class="bg-light m-4 position-relative shadow-sm p-3">
+                            <header class="text-muted" style="font-size: 14px;">
+                                <a href="#" class="text-muted">
+                                    <span>
+                                        <img src="${data['author_image_url']}" width="35" class="rounded-circle mr-2" alt="">
+                                    </span>
+                                    <span class="font-weight-bold">${data['author']}</span>
+                                </a>
+                                &bull;
+                                <span>Added just at the moment</span>
+                            </header>
+                            <section class="mt-2">
+                                <p>${data['content']}</p>
+                            </section>
+                            <footer>
+                                <div class="main">
+                                    <img src="{% static 'images/likes/like.png' %}" width="18" class="like-btn" alt="" data-url="${data['like_opinion_url']}">
+                                    <span id="likes-${data['opinion_id']}">
+                                        0
+                                    </span>
+                                    <button class="btn btn-link ml-4 text-muted reply-btn" data-reply-url="${data['reply_opinion_url']}">Reply</button>
+                                </div>
+                                <div class="row"></div>
+                            </footer>
+                        </article>
+                    `)
+                    reply_opinion_func();
+                    like_func();
+                },
+            })
+        })
+    })
+</script>
+
+{% endblock %}

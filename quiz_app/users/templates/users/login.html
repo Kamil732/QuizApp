@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card shadow-sm rounded-lg" id="navbar">
+        <div class="card-body">
+            <form method="post"> {% csrf_token %}
+                <h1>Login</h1>
+                {% if field.all.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in field.all.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button class="btn btn-info px-4">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
